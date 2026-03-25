@@ -10,6 +10,7 @@ yarn-error.log*
 # Build outputs
 dist/
 build/
+.next/
 *.tsbuildinfo
 
 # Environment variables

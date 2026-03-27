@@ -63,6 +63,7 @@ model User {
   image            String?
   bio              String?   @db.VarChar(200)
   domain           String    @default("people_analytics_od")
+  careerGoal       String?
   dataShareConsent Boolean   @default(false)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -73,6 +74,9 @@ model User {
   learningItems     LearningItem[]
   notificationLogs  NotificationLog[]
   bookSurveyResponses BookSurveyResponse[]
+  learningArchives  LearningArchive[]
+  userCertifications UserCertification[]
+  chatMessages      ChatMessage[]
 }
 
 model SkillAssessment {
@@ -173,6 +177,51 @@ model NotificationLog {
   @@index([userId, type])
 }
 
+model Certification {
+  id          String   @id @default(cuid())
+  name        String
+  provider    String   // "AIHR", "SHRM", "HRCI", etc.
+  skillIds    Json     // SkillId[]
+  level       Int      // 対応スキルレベル目安 (1-5)
+  url         String?
+  createdAt   DateTime @default(now())
+
+  userCertifications UserCertification[]
+}
+
+model UserCertification {
+  id              String    @id @default(cuid())
+  userId          String
+  certificationId String
+  status          String    // 'completed' | 'in_progress' | 'planned'
+  completedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  certification Certification @relation(fields: [certificationId], references: [id])
+
+  @@unique([userId, certificationId])
+  @@index([userId])
+}
+
+model LearningArchive {
+  id          String   @id @default(cuid())
+  userId      String
+  period      String   // "2026-03" (月次)
+  periodStart DateTime
+  periodEnd   DateTime
+  summary     String   @db.Text
+  isConfirmed Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, period])
+  @@index([userId])
+}
+
 model TrendReport {
   id          String   @id @default(cuid())
   generatedAt DateTime @default(now())
@@ -207,6 +256,19 @@ model BookSkillTag {
 
   @@unique([bookId, skillId])
   @@index([bookId])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  role      String   // 'user' | 'assistant'
+  content   String   @db.Text
+  sources   Json     @default("[]")  // [{title: string, url?: string}]
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }
 
 model BookSurveyResponse {

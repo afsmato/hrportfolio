@@ -28,5 +28,5 @@ export default async function SkillAssessmentPage() {
     ? await getLatestAssessments(session.user.id)
     : {};
 
-  return <SkillAssessmentForm defaultValues={defaultValues} />;
+  return <SkillAssessmentForm defaultValues={defaultValues} previousValues={defaultValues} />;
 }

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { SKILL_FRAMEWORK, type SkillId } from '@/constants/SKILL_FRAMEWORK';
+import { SKILL_FRAMEWORK } from '@/constants/SKILL_FRAMEWORK';
 import SkillRadarChart from '@/components/skill/SkillRadarChart';
 import DailySurveyCard from '@/components/survey/DailySurveyCard';
 import { BookSurveyService } from '@/services/BookSurveyService';

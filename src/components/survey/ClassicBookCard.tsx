@@ -96,7 +96,7 @@ export default function ClassicBookCard({ book, skillLabelMap, highlight }: Prop
           </span>
         )}
         <a
-          href={`https://search.rakuten.co.jp/search/mall/${encodeURIComponent(book.title)}/`}
+          href={book.isbn ? `https://books.rakuten.co.jp/rb/${book.isbn}/` : `https://search.rakuten.co.jp/search/mall/${encodeURIComponent(book.title)}/`}
           target="_blank"
           rel="noopener noreferrer"
           style={{
@@ -112,7 +112,7 @@ export default function ClassicBookCard({ book, skillLabelMap, highlight }: Prop
           楽天で見る
         </a>
         <a
-          href={`https://www.amazon.co.jp/s?k=${encodeURIComponent(book.title)}`}
+          href={`https://www.amazon.co.jp/s?k=${encodeURIComponent(book.isbn ?? book.title)}`}
           target="_blank"
           rel="noopener noreferrer"
           style={{

@@ -11,6 +11,7 @@ interface Props {
     id: string;
     title: string;
     author: string;
+    isbn: string | null;
     effectiveSkillIds: SkillId[];
     surveyCount: number;
   };
@@ -97,7 +98,7 @@ export default function DailySurveyCard({ book }: Props) {
 
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
         <a
-          href={`https://search.rakuten.co.jp/search/mall/${encodeURIComponent(book.title)}/`}
+          href={book.isbn ? `https://books.rakuten.co.jp/rb/${book.isbn}/` : `https://search.rakuten.co.jp/search/mall/${encodeURIComponent(book.title)}/`}
           target="_blank"
           rel="noopener noreferrer"
           style={{
@@ -112,7 +113,7 @@ export default function DailySurveyCard({ book }: Props) {
           楽天で見る
         </a>
         <a
-          href={`https://www.amazon.co.jp/s?k=${encodeURIComponent(book.title)}`}
+          href={`https://www.amazon.co.jp/s?k=${encodeURIComponent(book.isbn ?? book.title)}`}
           target="_blank"
           rel="noopener noreferrer"
           style={{

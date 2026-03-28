@@ -16,6 +16,7 @@ type Props = {
     title: string;
     author: string;
     publisher: string;
+    isbn: string | null;
     imageUrl: string | null;
     rakutenItemCode: string | null;
     claudeSkillTags: SkillId[];
@@ -73,13 +74,31 @@ export default function BookCard({ book, isGapRelated, isQueued: initialQueued }
           </div>
         )}
 
-        <button
-          onClick={handleAdd}
-          disabled={queued || isPending}
-          style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem', borderRadius: 6, border: '1px solid #d1d5db', background: queued ? '#f3f4f6' : '#fff', color: queued ? '#9ca3af' : '#374151', cursor: queued ? 'default' : 'pointer' }}
-        >
-          {queued ? '✓ リストに追加済み' : '読書リストに追加'}
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <button
+            onClick={handleAdd}
+            disabled={queued || isPending}
+            style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem', borderRadius: 6, border: '1px solid #d1d5db', background: queued ? '#f3f4f6' : '#fff', color: queued ? '#9ca3af' : '#374151', cursor: queued ? 'default' : 'pointer' }}
+          >
+            {queued ? '✓ リストに追加済み' : '読書リストに追加'}
+          </button>
+          <a
+            href={book.isbn ? `https://books.rakuten.co.jp/rb/${book.isbn}/` : `https://search.rakuten.co.jp/search/mall/${encodeURIComponent(book.title)}/`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem', borderRadius: 6, background: '#bf0000', color: '#fff', textDecoration: 'none' }}
+          >
+            楽天で見る
+          </a>
+          <a
+            href={`https://www.amazon.co.jp/s?k=${encodeURIComponent(book.isbn ?? book.title)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem', borderRadius: 6, background: '#ff9900', color: '#000', textDecoration: 'none' }}
+          >
+            Amazonで見る
+          </a>
+        </div>
       </div>
     </div>
   );

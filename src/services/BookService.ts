@@ -55,29 +55,21 @@ JSONのみを返し、説明文は不要。`;
       keyword: 'ビジネス',
       booksGenreId: '001004', // ビジネス書
       sort: 'reviewCount',
-      hits: 30,
+      hits: 15,
     });
 
-    const results = await Promise.allSettled(
-      items.map(async (item) => {
-        try {
-          const analysis = await this.analyzeBook(item.title, item.author);
-          if (!analysis.isHR) return null;
+    for (const item of items) {
+      try {
+        const analysis = await this.analyzeBook(item.title, item.author);
+        if (!analysis.isHR) continue;
 
-          await this.upsertBook(item, analysis.skillIds);
-          return item.isbn;
-        } catch (err) {
-          // eslint-disable-next-line no-console
-          console.error(`[BookService] error for "${item.title}":`, err);
-          errors++;
-          return null;
-        }
-      })
-    );
-
-    for (const result of results) {
-      if (result.status === 'fulfilled' && result.value) stored++;
-      else if (result.status === 'rejected') errors++;
+        await this.upsertBook(item, analysis.skillIds);
+        stored++;
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error(`[BookService] error for "${item.title}":`, err);
+        errors++;
+      }
     }
 
     return { stored, errors };

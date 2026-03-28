@@ -39,7 +39,10 @@ export async function searchRakutenBooks(params: RakutenSearchParams): Promise<R
     searchParams.set('keyword', params.keyword);
   }
 
-  const response = await fetch(`${RAKUTEN_API_BASE}?${searchParams.toString()}`);
+  const siteUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'http://localhost:3000';
+  const response = await fetch(`${RAKUTEN_API_BASE}?${searchParams.toString()}`, {
+    headers: { Referer: siteUrl },
+  });
   if (!response.ok) {
     const body = await response.text();
     throw new Error(`Rakuten API error: ${response.status} - ${body}`);

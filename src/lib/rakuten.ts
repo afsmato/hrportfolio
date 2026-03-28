@@ -40,8 +40,10 @@ export async function searchRakutenBooks(params: RakutenSearchParams): Promise<R
   }
 
   const siteUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'http://localhost:3000';
+  // eslint-disable-next-line no-console
+  console.log('[rakuten] Referer:', siteUrl);
   const response = await fetch(`${RAKUTEN_API_BASE}?${searchParams.toString()}`, {
-    headers: { Referer: siteUrl },
+    headers: { referer: siteUrl },
   });
   if (!response.ok) {
     const body = await response.text();

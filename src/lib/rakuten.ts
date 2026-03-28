@@ -24,7 +24,7 @@ export async function searchRakutenBooks(params: RakutenSearchParams): Promise<R
   if (!applicationId) throw new Error('RAKUTEN_APPLICATION_ID is not set');
 
   const searchParams = new URLSearchParams({
-    applicationId,
+    accessKey: applicationId,
     format: 'json',
     booksGenreId: params.booksGenreId ?? '001004',
     sort: params.sort ?? 'standard',

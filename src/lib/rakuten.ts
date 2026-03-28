@@ -1,3 +1,5 @@
+import https from 'node:https';
+
 const RAKUTEN_API_BASE = 'https://openapi.rakuten.co.jp/services/api/BooksTotal/Search/20170404';
 
 export interface RakutenBookItem {
@@ -17,6 +19,31 @@ export interface RakutenSearchParams {
   sort?: 'standard' | '-itemPrice' | '+itemPrice' | 'reviewCount' | '-reviewAverage' | 'updateTimestamp';
   page?: number;
   hits?: number;
+}
+
+function httpsGet(url: string, headers: Record<string, string>): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const parsed = new URL(url);
+    const options = {
+      hostname: parsed.hostname,
+      path: parsed.pathname + parsed.search,
+      method: 'GET',
+      headers,
+    };
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        if (res.statusCode && res.statusCode >= 400) {
+          reject(new Error(`Rakuten API error: ${res.statusCode} - ${data}`));
+        } else {
+          resolve(data);
+        }
+      });
+    });
+    req.on('error', reject);
+    req.end();
+  });
 }
 
 export async function searchRakutenBooks(params: RakutenSearchParams): Promise<RakutenBookItem[]> {
@@ -40,16 +67,12 @@ export async function searchRakutenBooks(params: RakutenSearchParams): Promise<R
   }
 
   const siteUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'http://localhost:3000';
-  // eslint-disable-next-line no-console
-  console.log('[rakuten] Referer:', siteUrl);
-  const response = await fetch(`${RAKUTEN_API_BASE}?${searchParams.toString()}`, {
-    headers: { referer: siteUrl },
+  const url = `${RAKUTEN_API_BASE}?${searchParams.toString()}`;
+  const body = await httpsGet(url, {
+    'Referer': siteUrl,
+    'User-Agent': 'Node.js',
   });
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`Rakuten API error: ${response.status} - ${body}`);
-  }
 
-  const data = await response.json() as { Items?: { Item: RakutenBookItem }[] };
+  const data = JSON.parse(body) as { Items?: { Item: RakutenBookItem }[] };
   return (data.Items ?? []).map((item) => item.Item);
 }

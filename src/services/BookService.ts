@@ -61,6 +61,8 @@ JSONのみを返し、説明文は不要。`;
       '労働経済学',
     ];
 
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
     const allItems: Awaited<ReturnType<typeof searchRakutenBooks>> = [];
     for (const keyword of HR_KEYWORDS) {
       const result = await searchRakutenBooks({
@@ -70,6 +72,7 @@ JSONのみを返し、説明文は不要。`;
         hits: 3,
       });
       allItems.push(...result);
+      await sleep(1500); // 楽天APIレート制限対策（1秒以上の間隔）
     }
 
     // ISBNで重複除去

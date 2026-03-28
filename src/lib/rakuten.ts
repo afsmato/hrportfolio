@@ -67,6 +67,7 @@ export async function searchRakutenBooks(params: RakutenSearchParams): Promise<R
   }
 
   const siteUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'http://localhost:3000';
+  searchParams.set('referer', siteUrl);
   const url = `${RAKUTEN_API_BASE}?${searchParams.toString()}`;
   const body = await httpsGet(url, {
     'Referer': siteUrl,

@@ -66,7 +66,9 @@ JSONのみを返し、説明文は不要。`;
 
           await this.upsertBook(item, analysis.skillIds);
           return item.isbn;
-        } catch {
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error(`[BookService] error for "${item.title}":`, err);
           errors++;
           return null;
         }

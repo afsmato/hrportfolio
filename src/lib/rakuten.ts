@@ -71,6 +71,7 @@ export async function searchRakutenBooks(params: RakutenSearchParams): Promise<R
   const url = `${RAKUTEN_API_BASE}?${searchParams.toString()}`;
   const body = await httpsGet(url, {
     'Referer': siteUrl,
+    'Origin': siteUrl,
     'User-Agent': 'Node.js',
   });
 

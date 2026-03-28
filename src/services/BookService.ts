@@ -51,11 +51,34 @@ JSONのみを返し、説明文は不要。`;
     let stored = 0;
     let errors = 0;
 
-    const items = await searchRakutenBooks({
-      keyword: 'ビジネス',
-      booksGenreId: '001004', // ビジネス書
-      sort: 'reviewCount',
-      hits: 15,
+    // 情報フィードのカテゴリに対応したHR特化キーワードで検索
+    const HR_KEYWORDS = [
+      'ピープルアナリティクス',
+      '組織開発',
+      'HRテクノロジー',
+      '人材マネジメント',
+      '経営学',
+      '労働経済学',
+    ];
+
+    const allItems: Awaited<ReturnType<typeof searchRakutenBooks>> = [];
+    for (const keyword of HR_KEYWORDS) {
+      const result = await searchRakutenBooks({
+        keyword,
+        booksGenreId: '001004',
+        sort: 'reviewCount',
+        hits: 3,
+      });
+      allItems.push(...result);
+    }
+
+    // ISBNで重複除去
+    const seen = new Set<string>();
+    const items = allItems.filter((item) => {
+      const key = item.isbn || item.itemCode;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
     });
 
     for (const item of items) {

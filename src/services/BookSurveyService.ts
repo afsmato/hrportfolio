@@ -12,6 +12,7 @@ export interface ClassicBook {
   id: string;
   title: string;
   author: string;
+  isbn: string | null;
   imageUrl: string | null;
   effectiveSkillIds: SkillId[];
   surveyCount: number;
@@ -22,6 +23,7 @@ type BookWithCounts = {
   id: string;
   title: string;
   author: string;
+  isbn: string | null;
   imageUrl: string | null;
   claudeSkillTags: unknown;
   bookSkillTags: { skillId: string; count: number }[];
@@ -48,6 +50,7 @@ function toClassicBook(book: BookWithCounts, _userId: string): ClassicBook {
     id: book.id,
     title: book.title,
     author: book.author,
+    isbn: book.isbn,
     imageUrl: book.imageUrl,
     effectiveSkillIds: getEffectiveSkillIds(book),
     surveyCount: book._count.bookSurveyResponses,

@@ -64,37 +64,74 @@ export default function ClassicBookCard({ book, skillLabelMap, highlight }: Prop
         )}
       </div>
 
-      {!queued ? (
-        <button
-          onClick={handleQueue}
-          disabled={loading}
-          style={{
-            padding: '0.375rem 0.75rem',
-            background: '#1a1a1a',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 6,
-            fontSize: '0.75rem',
-            cursor: loading ? 'wait' : 'pointer',
-            flexShrink: 0,
-          }}
-        >
-          積読に追加
-        </button>
-      ) : (
-        <span
-          style={{
-            padding: '0.375rem 0.75rem',
-            background: '#f3f4f6',
-            color: '#6b7280',
-            borderRadius: 6,
-            fontSize: '0.75rem',
-            flexShrink: 0,
-          }}
-        >
-          追加済み
-        </span>
-      )}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', flexShrink: 0 }}>
+        {!queued ? (
+          <button
+            onClick={handleQueue}
+            disabled={loading}
+            style={{
+              padding: '0.375rem 0.75rem',
+              background: '#1a1a1a',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 6,
+              fontSize: '0.75rem',
+              cursor: loading ? 'wait' : 'pointer',
+            }}
+          >
+            積読に追加
+          </button>
+        ) : (
+          <span
+            style={{
+              padding: '0.375rem 0.75rem',
+              background: '#f3f4f6',
+              color: '#6b7280',
+              borderRadius: 6,
+              fontSize: '0.75rem',
+              textAlign: 'center',
+            }}
+          >
+            追加済み
+          </span>
+        )}
+        {book.isbn && (
+          <>
+            <a
+              href={`https://books.rakuten.co.jp/rb/${book.isbn}/`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                padding: '0.375rem 0.75rem',
+                background: '#bf0000',
+                color: '#fff',
+                borderRadius: 6,
+                fontSize: '0.75rem',
+                textDecoration: 'none',
+                textAlign: 'center',
+              }}
+            >
+              楽天で見る
+            </a>
+            <a
+              href={`https://www.amazon.co.jp/s?k=${book.isbn}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                padding: '0.375rem 0.75rem',
+                background: '#ff9900',
+                color: '#000',
+                borderRadius: 6,
+                fontSize: '0.75rem',
+                textDecoration: 'none',
+                textAlign: 'center',
+              }}
+            >
+              Amazonで見る
+            </a>
+          </>
+        )}
+      </div>
     </div>
   );
 }

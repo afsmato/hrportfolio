@@ -11,6 +11,7 @@ interface Props {
     id: string;
     title: string;
     author: string;
+    isbn: string | null;
     effectiveSkillIds: SkillId[];
     surveyCount: number;
   };
@@ -92,6 +93,41 @@ export default function DailySurveyCard({ book }: Props) {
               {skillLabelMap[sid] ?? sid}
             </span>
           ))}
+        </div>
+      )}
+
+      {book.isbn && (
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
+          <a
+            href={`https://books.rakuten.co.jp/rb/${book.isbn}/`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              padding: '0.375rem 0.75rem',
+              background: '#bf0000',
+              color: '#fff',
+              borderRadius: 6,
+              fontSize: '0.75rem',
+              textDecoration: 'none',
+            }}
+          >
+            楽天で見る
+          </a>
+          <a
+            href={`https://www.amazon.co.jp/s?k=${book.isbn}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              padding: '0.375rem 0.75rem',
+              background: '#ff9900',
+              color: '#000',
+              borderRadius: 6,
+              fontSize: '0.75rem',
+              textDecoration: 'none',
+            }}
+          >
+            Amazonで見る
+          </a>
         </div>
       )}
 

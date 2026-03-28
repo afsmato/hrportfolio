@@ -26,12 +26,15 @@ export async function searchRakutenBooks(params: RakutenSearchParams): Promise<R
   const searchParams = new URLSearchParams({
     applicationId,
     format: 'json',
-    keyword: params.keyword ?? '',
     booksGenreId: params.booksGenreId ?? '001004',
     sort: params.sort ?? 'standard',
     page: String(params.page ?? 1),
     hits: String(params.hits ?? 30),
   });
+
+  if (params.keyword) {
+    searchParams.set('keyword', params.keyword);
+  }
 
   const response = await fetch(`${RAKUTEN_API_BASE}?${searchParams.toString()}`);
   if (!response.ok) throw new Error(`Rakuten API error: ${response.status}`);

@@ -95,42 +95,38 @@ export default function ClassicBookCard({ book, skillLabelMap, highlight }: Prop
             追加済み
           </span>
         )}
-        {book.isbn && (
-          <>
-            <a
-              href={`https://books.rakuten.co.jp/rb/${book.isbn}/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                padding: '0.375rem 0.75rem',
-                background: '#bf0000',
-                color: '#fff',
-                borderRadius: 6,
-                fontSize: '0.75rem',
-                textDecoration: 'none',
-                textAlign: 'center',
-              }}
-            >
-              楽天で見る
-            </a>
-            <a
-              href={`https://www.amazon.co.jp/s?k=${book.isbn}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                padding: '0.375rem 0.75rem',
-                background: '#ff9900',
-                color: '#000',
-                borderRadius: 6,
-                fontSize: '0.75rem',
-                textDecoration: 'none',
-                textAlign: 'center',
-              }}
-            >
-              Amazonで見る
-            </a>
-          </>
-        )}
+        <a
+          href={`https://search.rakuten.co.jp/search/mall/${encodeURIComponent(book.title)}/`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            padding: '0.375rem 0.75rem',
+            background: '#bf0000',
+            color: '#fff',
+            borderRadius: 6,
+            fontSize: '0.75rem',
+            textDecoration: 'none',
+            textAlign: 'center',
+          }}
+        >
+          楽天で見る
+        </a>
+        <a
+          href={`https://www.amazon.co.jp/s?k=${encodeURIComponent(book.title)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            padding: '0.375rem 0.75rem',
+            background: '#ff9900',
+            color: '#000',
+            borderRadius: 6,
+            fontSize: '0.75rem',
+            textDecoration: 'none',
+            textAlign: 'center',
+          }}
+        >
+          Amazonで見る
+        </a>
       </div>
     </div>
   );

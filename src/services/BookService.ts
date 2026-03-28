@@ -52,6 +52,7 @@ JSONのみを返し、説明文は不要。`;
     let errors = 0;
 
     const items = await searchRakutenBooks({
+      keyword: 'ビジネス',
       booksGenreId: '001004', // ビジネス書
       sort: 'reviewCount',
       hits: 30,

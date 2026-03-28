@@ -1,4 +1,4 @@
-const RAKUTEN_API_BASE = 'https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404';
+const RAKUTEN_API_BASE = 'https://openapi.rakuten.co.jp/services/api/BooksTotal/Search/20170404';
 
 export interface RakutenBookItem {
   title: string;
@@ -37,7 +37,10 @@ export async function searchRakutenBooks(params: RakutenSearchParams): Promise<R
   }
 
   const response = await fetch(`${RAKUTEN_API_BASE}?${searchParams.toString()}`);
-  if (!response.ok) throw new Error(`Rakuten API error: ${response.status}`);
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Rakuten API error: ${response.status} - ${body}`);
+  }
 
   const data = await response.json() as { Items?: { Item: RakutenBookItem }[] };
   return (data.Items ?? []).map((item) => item.Item);

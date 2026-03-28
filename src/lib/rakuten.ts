@@ -22,9 +22,12 @@ export interface RakutenSearchParams {
 export async function searchRakutenBooks(params: RakutenSearchParams): Promise<RakutenBookItem[]> {
   const applicationId = process.env.RAKUTEN_APPLICATION_ID;
   if (!applicationId) throw new Error('RAKUTEN_APPLICATION_ID is not set');
+  const accessKey = process.env.RAKUTEN_ACCESS_KEY;
+  if (!accessKey) throw new Error('RAKUTEN_ACCESS_KEY is not set');
 
   const searchParams = new URLSearchParams({
-    accessKey: applicationId,
+    applicationId,
+    accessKey,
     format: 'json',
     booksGenreId: params.booksGenreId ?? '001004',
     sort: params.sort ?? 'standard',

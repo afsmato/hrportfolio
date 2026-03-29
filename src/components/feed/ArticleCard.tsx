@@ -31,7 +31,9 @@ export function ArticleCard({ article, sourceName, isQueued = false, isRecommend
     try {
       const stored = JSON.parse(localStorage.getItem(DISMISSED_KEY) ?? '[]') as string[];
       if (stored.includes(article.id)) setDismissed(true);
-    } catch {}
+    } catch (e) {
+      void e;
+    }
   }, [article.id]);
 
   function handleQueue(e: React.MouseEvent) {
@@ -49,7 +51,9 @@ export function ArticleCard({ article, sourceName, isQueued = false, isRecommend
     try {
       const stored = JSON.parse(localStorage.getItem(DISMISSED_KEY) ?? '[]') as string[];
       localStorage.setItem(DISMISSED_KEY, JSON.stringify([...new Set([...stored, article.id])]));
-    } catch {}
+    } catch (e) {
+      void e;
+    }
     setDismissed(true);
   }
 

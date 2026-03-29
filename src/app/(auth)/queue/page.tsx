@@ -19,7 +19,10 @@ export default async function QueuePage({
   const [items, queuedCount, completedCount] = await Promise.all([
     prisma.learningItem.findMany({
       where: { userId, status: tab },
-      include: { article: { select: { id: true, title: true, url: true, category: true, summary: true } } },
+      include: {
+        article: { select: { id: true, title: true, url: true, category: true, summary: true } },
+        book: { select: { id: true, title: true, author: true, isbn: true, claudeSkillTags: true } },
+      },
       orderBy: { createdAt: 'desc' },
     }),
     prisma.learningItem.count({ where: { userId, status: 'queued' } }),

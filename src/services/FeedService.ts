@@ -6,9 +6,6 @@ import { SKILL_FRAMEWORK, type SkillId } from '@/constants/SKILL_FRAMEWORK';
 import type { ArticleDifficulty } from '@/types/article';
 import { prisma } from '@/lib/prisma';
 
-const BATCH_SIZE = 10;
-const MAX_BATCHES = 5;
-
 const ALL_SKILL_IDS: SkillId[] = Object.values(SKILL_FRAMEWORK).flatMap((skills) =>
   skills.map((s) => s.id as SkillId)
 );
@@ -84,58 +81,44 @@ JSONのみを返し、説明文は不要。`;
 
     const dbSources = await prisma.articleSource.findMany({ where: { active: true } });
     const sourceMap = new Map(dbSources.map((s) => [s.id, s]));
-
     const activeSources = ARTICLE_SOURCES.filter((s) => sourceMap.has(s.id));
-    const batchedSources = activeSources.slice(0, BATCH_SIZE * MAX_BATCHES);
 
-    for (let i = 0; i < batchedSources.length; i += BATCH_SIZE) {
-      const batch = batchedSources.slice(i, i + BATCH_SIZE);
+    for (const source of activeSources) {
+      let items: RssItem[] = [];
+      try {
+        items = await fetchRssFeed(source.url);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.warn(`[FeedService] fetchRssFeed failed for ${source.name}:`, err);
+        errors++;
+        continue;
+      }
 
-      const results = await Promise.allSettled(
-        batch.map(async (source) => {
-          const items = await fetchRssFeed(source.url);
-          const toInsert: ArticleCreateInput[] = [];
-
-          const analysisResults = await Promise.allSettled(
-            items.slice(0, 5).map(async (item) => {
-              if (!item.link) return null;
-              const analysis = await this.analyzeArticle(item, source.name, source.category);
-              return {
-                sourceId: source.id,
-                title: item.title ?? '',
-                url: item.link,
-                summary: analysis.summary,
-                publishedAt: item.isoDate ? new Date(item.isoDate) : new Date(),
-                tags: analysis.tags,
-                difficulty: analysis.difficulty,
-                category: source.category,
-              } satisfies ArticleCreateInput;
-            })
-          );
-
-          for (const result of analysisResults) {
-            if (result.status === 'fulfilled' && result.value) {
-              toInsert.push(result.value);
-            } else if (result.status === 'rejected') {
-              // eslint-disable-next-line no-console
-              console.warn('[FeedService] analyzeArticle failed:', result.reason);
-              errors++;
-            }
-          }
-
-          const count = await this.repository.upsertMany(toInsert);
-          return count;
-        })
-      );
-
-      for (const result of results) {
-        if (result.status === 'fulfilled') {
-          fetched += result.value;
-        } else {
+      const toInsert: ArticleCreateInput[] = [];
+      for (const item of items.slice(0, 3)) {
+        if (!item.link) continue;
+        try {
+          const analysis = await this.analyzeArticle(item, source.name, source.category);
+          toInsert.push({
+            sourceId: source.id,
+            title: item.title ?? '',
+            url: item.link,
+            summary: analysis.summary,
+            publishedAt: item.isoDate ? new Date(item.isoDate) : new Date(),
+            tags: analysis.tags,
+            difficulty: analysis.difficulty,
+            category: source.category,
+          });
+        } catch (err) {
           // eslint-disable-next-line no-console
-          console.warn('[FeedService] fetchRssFeed failed:', result.reason);
+          console.warn(`[FeedService] analyzeArticle failed for "${item.title}":`, err);
           errors++;
         }
+      }
+
+      if (toInsert.length > 0) {
+        const count = await this.repository.upsertMany(toInsert);
+        fetched += count;
       }
     }
 

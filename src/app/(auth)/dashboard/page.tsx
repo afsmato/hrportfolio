@@ -80,18 +80,18 @@ export default async function DashboardPage() {
     prisma.user.findUnique({ where: { id: userId }, select: { domain: true } }),
     prisma.article.findMany({
       orderBy: { publishedAt: 'desc' },
-      take: 5,
+      take: 3,
       select: { id: true, title: true, url: true, category: true, publishedAt: true },
     }),
     prisma.book.findMany({
       orderBy: { createdAt: 'desc' },
-      take: 5,
+      take: 3,
       select: { id: true, title: true, author: true, isbn: true, claudeSkillTags: true },
     }),
     prisma.learningItem.findMany({
       where: { userId, status: 'queued' },
       orderBy: { createdAt: 'desc' },
-      take: 5,
+      take: 3,
       include: {
         article: { select: { id: true, title: true, url: true } },
         book: { select: { id: true, title: true, author: true } },
@@ -138,148 +138,122 @@ export default async function DashboardPage() {
       {/* 毎日書籍アンケート */}
       {dailyBook && <DailySurveyCard book={dailyBook} />}
 
-      {/* スキルマップ */}
-      {hasAssessment ? (
-        <section style={{ marginBottom: '2rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '1rem' }}>
-            <h2 style={{ fontSize: '1.125rem', fontWeight: 'bold' }}>スキルマップ</h2>
+      {/* スキルマップ + 情報フィード */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem', alignItems: 'start' }}>
+        <section>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.75rem' }}>
+            <h2 style={{ fontSize: '1rem', fontWeight: 'bold' }}>スキルマップ</h2>
             {lastAssessedAt && (
-              <span style={{ fontSize: '0.8rem', color: '#888' }}>
-                最終評価: {lastAssessedAt.toLocaleDateString('ja-JP')}
-              </span>
+              <span style={{ fontSize: '0.7rem', color: '#9ca3af' }}>{lastAssessedAt.toLocaleDateString('ja-JP')}</span>
             )}
           </div>
-          <SkillRadarChart data={radarData} />
+          {hasAssessment ? (
+            <SkillRadarChart data={radarData} />
+          ) : (
+            <div style={{ textAlign: 'center', padding: '2rem 0.5rem', background: '#f5f5f5', borderRadius: 8 }}>
+              <p style={{ fontSize: '0.8rem', color: '#555', marginBottom: '0.75rem' }}>未評価</p>
+              <Link href="/skill-assessment" style={{ fontSize: '0.8rem', padding: '0.5rem 1rem', background: '#1a1a1a', color: '#fff', borderRadius: 6, textDecoration: 'none' }}>
+                評価する
+              </Link>
+            </div>
+          )}
         </section>
-      ) : (
-        <div style={{ textAlign: 'center', padding: '3rem 1rem', background: '#f5f5f5', borderRadius: 12, marginBottom: '2rem' }}>
-          <p style={{ marginBottom: '1rem', color: '#555' }}>スキルマップがまだ作成されていません。</p>
-          <Link
-            href="/skill-assessment"
-            style={{ padding: '0.75rem 1.5rem', background: '#1a1a1a', color: '#fff', borderRadius: 8, textDecoration: 'none' }}
-          >
-            スキルを評価する
-          </Link>
-        </div>
-      )}
 
-      {/* 情報フィード */}
-      <section style={{ marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.125rem', fontWeight: 'bold' }}>情報フィード</h2>
-          <Link href="/feed" style={{ fontSize: '0.8rem', color: '#6b7280', textDecoration: 'none' }}>
-            もっと見る →
-          </Link>
-        </div>
-        {recentArticles.length === 0 ? (
-          <p style={{ fontSize: '0.875rem', color: '#9ca3af' }}>記事がまだありません。</p>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {recentArticles.map((article) => (
-              <div key={article.id} style={{ padding: '0.75rem 1rem', background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
-                  <a
-                    href={article.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ fontSize: '0.875rem', fontWeight: 600, color: '#111', textDecoration: 'none', flex: 1 }}
-                  >
+        <section>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.75rem' }}>
+            <h2 style={{ fontSize: '1rem', fontWeight: 'bold' }}>情報フィード</h2>
+            <Link href="/feed" style={{ fontSize: '0.75rem', color: '#6b7280', textDecoration: 'none' }}>もっと見る →</Link>
+          </div>
+          {recentArticles.length === 0 ? (
+            <p style={{ fontSize: '0.8rem', color: '#9ca3af' }}>記事がまだありません。</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {recentArticles.map((article) => (
+                <div key={article.id} style={{ padding: '0.625rem 0.75rem', background: '#fff', border: '1px solid #e5e7eb', borderRadius: 6 }}>
+                  <a href={article.url} target="_blank" rel="noopener noreferrer"
+                    style={{ fontSize: '0.8rem', fontWeight: 600, color: '#111', textDecoration: 'none', display: 'block', marginBottom: '0.25rem', lineHeight: 1.4 }}>
                     {article.title}
                   </a>
-                  <span style={{ fontSize: '0.7rem', padding: '0.125rem 0.5rem', background: '#f3f4f6', borderRadius: 4, color: '#6b7280', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                    {CATEGORY_LABELS[article.category as ArticleCategory] ?? article.category}
-                  </span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '0.65rem', color: '#9ca3af' }}>{new Date(article.publishedAt).toLocaleDateString('ja-JP')}</span>
+                    <span style={{ fontSize: '0.65rem', padding: '0.1rem 0.375rem', background: '#f3f4f6', borderRadius: 3, color: '#6b7280' }}>
+                      {CATEGORY_LABELS[article.category as ArticleCategory] ?? article.category}
+                    </span>
+                  </div>
                 </div>
-                <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.25rem' }}>
-                  {new Date(article.publishedAt).toLocaleDateString('ja-JP')}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
 
-      {/* 書籍ランキング */}
-      <section style={{ marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.125rem', fontWeight: 'bold' }}>書籍ランキング</h2>
-          <Link href="/books" style={{ fontSize: '0.8rem', color: '#6b7280', textDecoration: 'none' }}>
-            もっと見る →
-          </Link>
-        </div>
-        {recentBooks.length === 0 ? (
-          <p style={{ fontSize: '0.875rem', color: '#9ca3af' }}>書籍がまだありません。</p>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {recentBooks.map((book) => (
-              <div key={book.id} style={{ padding: '0.75rem 1rem', background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.125rem' }}>{book.title}</p>
-                  <p style={{ fontSize: '0.75rem', color: '#6b7280' }}>{book.author}</p>
-                </div>
-                <div style={{ display: 'flex', gap: '0.375rem', flexShrink: 0 }}>
-                  <a
-                    href={book.isbn ? `https://books.rakuten.co.jp/rb/${book.isbn}/` : `https://search.rakuten.co.jp/search/mall/${encodeURIComponent(book.title)}/`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ fontSize: '0.7rem', padding: '0.25rem 0.5rem', borderRadius: 4, background: '#bf0000', color: '#fff', textDecoration: 'none' }}
-                  >
-                    楽天
-                  </a>
-                  <a
-                    href={`https://www.amazon.co.jp/s?k=${encodeURIComponent(book.isbn ?? book.title)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ fontSize: '0.7rem', padding: '0.25rem 0.5rem', borderRadius: 4, background: '#ff9900', color: '#000', textDecoration: 'none' }}
-                  >
-                    Amazon
-                  </a>
-                </div>
-              </div>
-            ))}
+      {/* 書籍ランキング + 学習キュー */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem', alignItems: 'start' }}>
+        <section>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.75rem' }}>
+            <h2 style={{ fontSize: '1rem', fontWeight: 'bold' }}>書籍ランキング</h2>
+            <Link href="/books" style={{ fontSize: '0.75rem', color: '#6b7280', textDecoration: 'none' }}>もっと見る →</Link>
           </div>
-        )}
-      </section>
+          {recentBooks.length === 0 ? (
+            <p style={{ fontSize: '0.8rem', color: '#9ca3af' }}>書籍がまだありません。</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {recentBooks.map((book) => (
+                <div key={book.id} style={{ padding: '0.625rem 0.75rem', background: '#fff', border: '1px solid #e5e7eb', borderRadius: 6 }}>
+                  <p style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.125rem', lineHeight: 1.4 }}>{book.title}</p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.65rem', color: '#6b7280' }}>{book.author}</span>
+                    <div style={{ display: 'flex', gap: '0.25rem' }}>
+                      <a href={book.isbn ? `https://books.rakuten.co.jp/rb/${book.isbn}/` : `https://search.rakuten.co.jp/search/mall/${encodeURIComponent(book.title)}/`}
+                        target="_blank" rel="noopener noreferrer"
+                        style={{ fontSize: '0.65rem', padding: '0.1rem 0.375rem', borderRadius: 3, background: '#bf0000', color: '#fff', textDecoration: 'none' }}>
+                        楽天
+                      </a>
+                      <a href={`https://www.amazon.co.jp/s?k=${encodeURIComponent(book.isbn ?? book.title)}`}
+                        target="_blank" rel="noopener noreferrer"
+                        style={{ fontSize: '0.65rem', padding: '0.1rem 0.375rem', borderRadius: 3, background: '#ff9900', color: '#000', textDecoration: 'none' }}>
+                        Amazon
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
-      {/* 学習キュー */}
-      <section style={{ marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.125rem', fontWeight: 'bold' }}>学習キュー</h2>
-          <Link href="/queue" style={{ fontSize: '0.8rem', color: '#6b7280', textDecoration: 'none' }}>
-            もっと見る →
-          </Link>
-        </div>
-        {queuedItems.length === 0 ? (
-          <p style={{ fontSize: '0.875rem', color: '#9ca3af' }}>キューに追加されたアイテムがありません。</p>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {queuedItems.map((item) => {
-              const title = item.article?.title ?? item.book?.title ?? '（タイトル不明）';
-              const url = item.article?.url;
-              return (
-                <div key={item.id} style={{ padding: '0.75rem 1rem', background: '#fff', border: '1px solid #e5e7eb', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
+        <section>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.75rem' }}>
+            <h2 style={{ fontSize: '1rem', fontWeight: 'bold' }}>学習キュー</h2>
+            <Link href="/queue" style={{ fontSize: '0.75rem', color: '#6b7280', textDecoration: 'none' }}>もっと見る →</Link>
+          </div>
+          {queuedItems.length === 0 ? (
+            <p style={{ fontSize: '0.8rem', color: '#9ca3af' }}>キューが空です。</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {queuedItems.map((item) => {
+                const title = item.article?.title ?? item.book?.title ?? '（タイトル不明）';
+                const url = item.article?.url;
+                return (
+                  <div key={item.id} style={{ padding: '0.625rem 0.75rem', background: '#fff', border: '1px solid #e5e7eb', borderRadius: 6 }}>
                     {url ? (
                       <a href={url} target="_blank" rel="noopener noreferrer"
-                        style={{ fontSize: '0.875rem', fontWeight: 600, color: '#111', textDecoration: 'none' }}>
+                        style={{ fontSize: '0.8rem', fontWeight: 600, color: '#111', textDecoration: 'none', display: 'block', marginBottom: '0.125rem', lineHeight: 1.4 }}>
                         {title}
                       </a>
                     ) : (
-                      <p style={{ fontSize: '0.875rem', fontWeight: 600 }}>{title}</p>
+                      <p style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.125rem', lineHeight: 1.4 }}>{title}</p>
                     )}
-                    <p style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '0.125rem' }}>
-                      {item.type === 'article' ? '記事' : '書籍'} · 追加日: {item.createdAt.toLocaleDateString('ja-JP')}
-                    </p>
+                    <span style={{ fontSize: '0.65rem', color: '#9ca3af' }}>
+                      {item.type === 'article' ? '記事' : '書籍'} · {item.createdAt.toLocaleDateString('ja-JP')}
+                    </span>
                   </div>
-                  <span style={{ fontSize: '0.7rem', padding: '0.25rem 0.5rem', background: '#f3f4f6', borderRadius: 4, color: '#6b7280', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                    未読
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </section>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      </div>
     </main>
   );
 }

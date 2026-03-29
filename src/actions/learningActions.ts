@@ -34,6 +34,42 @@ export async function addToQueue(articleId: string): Promise<void> {
   });
 }
 
+export async function markArticleAsRead(articleId: string): Promise<void> {
+  const session = await auth();
+  if (!session?.user?.id) redirect('/login');
+
+  const userId = session.user.id;
+  const article = await prisma.article.findUnique({
+    where: { id: articleId },
+    select: { tags: true },
+  });
+
+  const existing = await prisma.learningItem.findFirst({
+    where: { userId, articleId, type: 'article' },
+  });
+
+  if (existing) {
+    await prisma.learningItem.update({
+      where: { id: existing.id },
+      data: { status: 'completed', completedAt: new Date() },
+    });
+  } else {
+    await prisma.learningItem.create({
+      data: {
+        userId,
+        type: 'article',
+        articleId,
+        status: 'completed',
+        completedAt: new Date(),
+        skillIds: article?.tags ?? [],
+      },
+    });
+  }
+
+  revalidatePath('/queue');
+  revalidatePath('/dashboard');
+}
+
 export async function completeItem(
   id: string,
   memo: string,

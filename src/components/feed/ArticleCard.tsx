@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from 'react';
 import type { Article, ArticleDifficulty } from '@/types/article';
 import { CATEGORY_LABELS, DIFFICULTY_LABELS } from '@/constants/FEED_LABELS';
-import { addToQueue } from '@/actions/learningActions';
+import { addToQueue, markArticleAsRead } from '@/actions/learningActions';
 
 const DISMISSED_KEY = 'dismissed_articles';
 
@@ -23,6 +23,7 @@ interface ArticleCardProps {
 
 export function ArticleCard({ article, sourceName, isQueued = false, isRecommended = false }: ArticleCardProps) {
   const [queued, setQueued] = useState(isQueued);
+  const [read, setRead] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [isPending, startTransition] = useTransition();
   const badgeColor = DIFFICULTY_COLORS[article.difficulty];
@@ -118,6 +119,28 @@ export function ArticleCard({ article, sourceName, isQueued = false, isRecommend
       </p>
 
       <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            if (read) return;
+            setRead(true);
+            startTransition(async () => {
+              await markArticleAsRead(article.id);
+            });
+          }}
+          disabled={read || isPending}
+          style={{
+            fontSize: '0.75rem',
+            padding: '0.25rem 0.75rem',
+            borderRadius: '0.375rem',
+            border: '1px solid #d1d5db',
+            background: read ? '#f0fdf4' : '#fff',
+            color: read ? '#16a34a' : '#374151',
+            cursor: read ? 'default' : 'pointer',
+          }}
+        >
+          {read ? '✓ 読了' : '読了'}
+        </button>
         <button
           onClick={handleQueue}
           disabled={queued || isPending}

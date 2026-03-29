@@ -4,7 +4,8 @@ import { ArticleRepository } from '@/repositories/ArticleRepository';
 import { prisma } from '@/lib/prisma';
 import { ArticleCard } from '@/components/feed/ArticleCard';
 import { FilterBar } from '@/components/feed/FilterBar';
-import RecommendedArticles from '@/components/feed/RecommendedArticles';
+import { SKILL_FRAMEWORK, type SkillId } from '@/constants/SKILL_FRAMEWORK';
+import { DOMAIN_CONSTANTS } from '@/constants/DOMAIN_CONSTANTS';
 import type { ArticleCategory, ArticleDifficulty } from '@/types/article';
 
 interface SearchParams {
@@ -13,12 +14,45 @@ interface SearchParams {
   page?: string;
 }
 
+async function getRecommendedArticleIds(userId: string): Promise<Set<string>> {
+  const allSkillIds = Object.values(SKILL_FRAMEWORK).flatMap((s) => s.map((x) => x.id));
+  const assessments = await prisma.skillAssessment.findMany({
+    where: { userId, skillId: { in: allSkillIds } },
+    orderBy: { assessedAt: 'desc' },
+  });
+
+  const latest: Record<string, number> = {};
+  for (const a of assessments) {
+    if (!latest[a.skillId]) latest[a.skillId] = a.score;
+  }
+
+  const gapSkillIds = Object.entries(latest)
+    .filter(([, score]) => score <= DOMAIN_CONSTANTS.GAP_THRESHOLD)
+    .map(([skillId]) => skillId as SkillId);
+
+  if (gapSkillIds.length === 0) return new Set();
+
+  const articles = await prisma.article.findMany({
+    orderBy: { publishedAt: 'desc' },
+    take: 100,
+    select: { id: true, tags: true },
+  });
+
+  return new Set(
+    articles
+      .filter((a) => (a.tags as string[]).some((tag) => gapSkillIds.includes(tag as SkillId)))
+      .map((a) => a.id)
+  );
+}
+
 async function ArticleList({
   searchParams,
   queuedArticleIds,
+  recommendedArticleIds,
 }: {
   searchParams: SearchParams;
   queuedArticleIds: Set<string>;
+  recommendedArticleIds: Set<string>;
 }) {
   const category = searchParams.category as ArticleCategory | undefined;
   const difficulty = searchParams.difficulty as ArticleDifficulty | undefined;
@@ -57,6 +91,7 @@ async function ArticleList({
             article={article}
             sourceName={sourceNameMap.get(article.sourceId) ?? ''}
             isQueued={queuedArticleIds.has(article.id)}
+            isRecommended={recommendedArticleIds.has(article.id)}
           />
         ))}
       </div>
@@ -95,29 +130,31 @@ export default async function FeedPage({
   const [params, session] = await Promise.all([searchParams, auth()]);
   const userId = session?.user?.id ?? '';
 
-  const queuedItems = userId
-    ? await prisma.learningItem.findMany({
-        where: { userId, type: 'article', status: 'queued' },
-        select: { articleId: true },
-      })
-    : [];
+  const [queuedItems, recommendedArticleIds] = await Promise.all([
+    userId
+      ? prisma.learningItem.findMany({
+          where: { userId, type: 'article', status: 'queued' },
+          select: { articleId: true },
+        })
+      : Promise.resolve([]),
+    userId ? getRecommendedArticleIds(userId) : Promise.resolve(new Set<string>()),
+  ]);
   const queuedArticleIds = new Set(queuedItems.map((i) => i.articleId).filter(Boolean) as string[]);
 
   return (
     <main style={{ maxWidth: '48rem', margin: '0 auto', padding: '2rem 1rem' }}>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem' }}>情報フィード</h1>
-
-      {userId && (
-        <Suspense>
-          <RecommendedArticles userId={userId} queuedArticleIds={queuedArticleIds} />
-        </Suspense>
-      )}
+      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem' }}>情報フィード</h1>
 
       <Suspense>
         <FilterBar />
       </Suspense>
+
       <Suspense fallback={<p style={{ color: '#6b7280' }}>読み込み中...</p>}>
-        <ArticleList searchParams={params} queuedArticleIds={queuedArticleIds} />
+        <ArticleList
+          searchParams={params}
+          queuedArticleIds={queuedArticleIds}
+          recommendedArticleIds={recommendedArticleIds}
+        />
       </Suspense>
     </main>
   );

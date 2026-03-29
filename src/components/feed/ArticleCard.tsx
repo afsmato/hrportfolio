@@ -105,22 +105,6 @@ export function ArticleCard({ article, sourceName, isQueued = false, isRecommend
             </span>
           )}
         </div>
-        <button
-          onClick={handleDismiss}
-          style={{
-            fontSize: '0.7rem',
-            padding: '0.125rem 0.5rem',
-            borderRadius: 4,
-            border: '1px solid #e5e7eb',
-            background: '#fff',
-            color: '#9ca3af',
-            cursor: 'pointer',
-            flexShrink: 0,
-            marginLeft: '0.5rem',
-          }}
-        >
-          外す
-        </button>
       </div>
 
       <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.375rem', lineHeight: 1.4 }}>
@@ -133,21 +117,37 @@ export function ArticleCard({ article, sourceName, isQueued = false, isRecommend
         {article.summary}
       </p>
 
-      <button
-        onClick={handleQueue}
-        disabled={queued || isPending}
-        style={{
-          fontSize: '0.75rem',
-          padding: '0.25rem 0.75rem',
-          borderRadius: '0.375rem',
-          border: '1px solid #d1d5db',
-          background: queued ? '#f3f4f6' : '#fff',
-          color: queued ? '#9ca3af' : '#374151',
-          cursor: queued ? 'default' : 'pointer',
-        }}
-      >
-        {queued ? '✓ 追加済み' : 'あとで読む'}
-      </button>
+      <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <button
+          onClick={handleQueue}
+          disabled={queued || isPending}
+          style={{
+            fontSize: '0.75rem',
+            padding: '0.25rem 0.75rem',
+            borderRadius: '0.375rem',
+            border: '1px solid #d1d5db',
+            background: queued ? '#f3f4f6' : '#fff',
+            color: queued ? '#9ca3af' : '#374151',
+            cursor: queued ? 'default' : 'pointer',
+          }}
+        >
+          {queued ? '✓ 追加済み' : 'あとで読む'}
+        </button>
+        <button
+          onClick={handleDismiss}
+          style={{
+            fontSize: '0.75rem',
+            padding: '0.25rem 0.75rem',
+            borderRadius: '0.375rem',
+            border: '1px solid #e5e7eb',
+            background: '#fff',
+            color: '#9ca3af',
+            cursor: 'pointer',
+          }}
+        >
+          外す
+        </button>
+      </div>
     </a>
   );
 }

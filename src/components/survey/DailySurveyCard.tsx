@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { respondToSurvey, addClassicToQueue } from '@/actions/bookSurveyActions';
 import { SKILL_FRAMEWORK, type SkillId } from '@/constants/SKILL_FRAMEWORK';
+import { rakutenBookUrl, amazonBookUrl } from '@/lib/bookLinks';
 
 const ALL_SKILLS = Object.values(SKILL_FRAMEWORK).flat();
 
@@ -98,7 +99,7 @@ export default function DailySurveyCard({ book }: Props) {
 
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
         <a
-          href={book.isbn ? `https://books.rakuten.co.jp/rb/${book.isbn}/` : `https://search.rakuten.co.jp/search/mall/${encodeURIComponent(book.title)}/`}
+          href={rakutenBookUrl(book.isbn, book.title)}
           target="_blank"
           rel="noopener noreferrer"
           style={{
@@ -113,7 +114,7 @@ export default function DailySurveyCard({ book }: Props) {
           楽天で見る
         </a>
         <a
-          href={`https://www.amazon.co.jp/s?k=${encodeURIComponent(book.isbn ?? book.title)}`}
+          href={amazonBookUrl(book.isbn, book.title)}
           target="_blank"
           rel="noopener noreferrer"
           style={{

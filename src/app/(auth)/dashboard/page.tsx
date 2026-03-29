@@ -8,6 +8,7 @@ import { BookSurveyService } from '@/services/BookSurveyService';
 import { getDomainLabel } from '@/constants/DOMAIN_OPTIONS';
 import { CATEGORY_LABELS } from '@/constants/FEED_LABELS';
 import type { ArticleCategory } from '@/types/article';
+import { rakutenBookUrl, amazonBookUrl } from '@/lib/bookLinks';
 
 const AREA_LABELS: Record<keyof typeof SKILL_FRAMEWORK, string> = {
   people_analytics: 'People Analytics',
@@ -204,12 +205,12 @@ export default async function DashboardPage() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.65rem', color: '#6b7280' }}>{book.author}</span>
                     <div style={{ display: 'flex', gap: '0.25rem' }}>
-                      <a href={book.isbn ? `https://books.rakuten.co.jp/rb/${book.isbn}/` : `https://search.rakuten.co.jp/search/mall/${encodeURIComponent(book.title)}/`}
+                      <a href={rakutenBookUrl(book.isbn, book.title)}
                         target="_blank" rel="noopener noreferrer"
                         style={{ fontSize: '0.65rem', padding: '0.1rem 0.375rem', borderRadius: 3, background: '#bf0000', color: '#fff', textDecoration: 'none' }}>
                         楽天
                       </a>
-                      <a href={`https://www.amazon.co.jp/s?k=${encodeURIComponent(book.isbn ?? book.title)}`}
+                      <a href={amazonBookUrl(book.isbn, book.title)}
                         target="_blank" rel="noopener noreferrer"
                         style={{ fontSize: '0.65rem', padding: '0.1rem 0.375rem', borderRadius: 3, background: '#ff9900', color: '#000', textDecoration: 'none' }}>
                         Amazon

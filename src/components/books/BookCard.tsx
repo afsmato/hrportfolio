@@ -5,6 +5,7 @@ import { SKILL_FRAMEWORK } from '@/constants/SKILL_FRAMEWORK';
 import type { SkillId } from '@/constants/SKILL_FRAMEWORK';
 import { addBookToQueue } from '@/actions/learningActions';
 import type { RakutenBookItem } from '@/lib/rakuten';
+import { rakutenBookUrl, amazonBookUrl } from '@/lib/bookLinks';
 
 const SKILL_LABEL_MAP: Record<string, string> = Object.values(SKILL_FRAMEWORK)
   .flat()
@@ -83,7 +84,7 @@ export default function BookCard({ book, isGapRelated, isQueued: initialQueued }
             {queued ? '✓ リストに追加済み' : '読書リストに追加'}
           </button>
           <a
-            href={book.isbn ? `https://books.rakuten.co.jp/rb/${book.isbn}/` : `https://search.rakuten.co.jp/search/mall/${encodeURIComponent(book.title)}/`}
+            href={rakutenBookUrl(book.isbn, book.title)}
             target="_blank"
             rel="noopener noreferrer"
             style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem', borderRadius: 6, background: '#bf0000', color: '#fff', textDecoration: 'none' }}
@@ -91,7 +92,7 @@ export default function BookCard({ book, isGapRelated, isQueued: initialQueued }
             楽天で見る
           </a>
           <a
-            href={`https://www.amazon.co.jp/s?k=${encodeURIComponent(book.isbn ?? book.title)}`}
+            href={amazonBookUrl(book.isbn, book.title)}
             target="_blank"
             rel="noopener noreferrer"
             style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem', borderRadius: 6, background: '#ff9900', color: '#000', textDecoration: 'none' }}

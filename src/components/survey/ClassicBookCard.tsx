@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { addClassicToQueue } from '@/actions/bookSurveyActions';
 import type { ClassicBook } from '@/services/BookSurveyService';
+import { rakutenBookUrl, amazonBookUrl } from '@/lib/bookLinks';
 
 interface Props {
   book: ClassicBook;
@@ -96,7 +97,7 @@ export default function ClassicBookCard({ book, skillLabelMap, highlight }: Prop
           </span>
         )}
         <a
-          href={book.isbn ? `https://books.rakuten.co.jp/rb/${book.isbn}/` : `https://search.rakuten.co.jp/search/mall/${encodeURIComponent(book.title)}/`}
+          href={rakutenBookUrl(book.isbn, book.title)}
           target="_blank"
           rel="noopener noreferrer"
           style={{
@@ -112,7 +113,7 @@ export default function ClassicBookCard({ book, skillLabelMap, highlight }: Prop
           楽天で見る
         </a>
         <a
-          href={`https://www.amazon.co.jp/s?k=${encodeURIComponent(book.isbn ?? book.title)}`}
+          href={amazonBookUrl(book.isbn, book.title)}
           target="_blank"
           rel="noopener noreferrer"
           style={{

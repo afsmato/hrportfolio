@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { SKILL_FRAMEWORK } from '@/constants/SKILL_FRAMEWORK';
 import type { SkillId } from '@/constants/SKILL_FRAMEWORK';
 import CompleteModal from './CompleteModal';
+import { rakutenBookUrl, amazonBookUrl } from '@/lib/bookLinks';
 
 const SKILL_LABEL_MAP: Record<string, string> = Object.values(SKILL_FRAMEWORK)
   .flat()
@@ -82,14 +83,14 @@ export default function LearningItemCard({ item }: Props) {
             {isBook && item.book && (
               <div style={{ display: 'flex', gap: '0.375rem', marginBottom: '0.5rem' }}>
                 <a
-                  href={item.book.isbn ? `https://books.rakuten.co.jp/rb/${item.book.isbn}/` : `https://search.rakuten.co.jp/search/mall/${encodeURIComponent(item.book.title)}/`}
+                  href={rakutenBookUrl(item.book.isbn, item.book.title)}
                   target="_blank" rel="noopener noreferrer"
                   style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', borderRadius: 4, background: '#bf0000', color: '#fff', textDecoration: 'none' }}
                 >
                   楽天で見る
                 </a>
                 <a
-                  href={`https://www.amazon.co.jp/s?k=${encodeURIComponent(item.book.isbn ?? item.book.title)}`}
+                  href={amazonBookUrl(item.book.isbn, item.book.title)}
                   target="_blank" rel="noopener noreferrer"
                   style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', borderRadius: 4, background: '#ff9900', color: '#000', textDecoration: 'none' }}
                 >

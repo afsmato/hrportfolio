@@ -182,7 +182,7 @@ export default function DailySurveyCard({ book }: Props) {
       {step === 'read-detail' && (
         <div>
           <p style={{ fontSize: '0.8rem', fontWeight: '600', marginBottom: '0.5rem', color: '#374151' }}>
-            どのスキルが伸びましたか？（複数選択可）
+            どのエリアの知識向上に繋がりましたか？（複数選択可）
           </p>
           <div
             style={{
@@ -240,7 +240,7 @@ export default function DailySurveyCard({ book }: Props) {
             ))}
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <button
               onClick={handleReadSubmit}
               disabled={loading || selectedSkills.length === 0}
@@ -255,6 +255,26 @@ export default function DailySurveyCard({ book }: Props) {
               }}
             >
               送信する
+            </button>
+            <button
+              onClick={async () => {
+                setLoading(true);
+                await respondToSurvey(book.id, 'read', [], null);
+                setStep('done');
+                setLoading(false);
+              }}
+              disabled={loading}
+              style={{
+                padding: '0.5rem 1rem',
+                background: '#fff',
+                color: '#374151',
+                border: '1px solid #d1d5db',
+                borderRadius: 6,
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+              }}
+            >
+              あまり理解できなかった
             </button>
             <button
               onClick={() => setStep('initial')}

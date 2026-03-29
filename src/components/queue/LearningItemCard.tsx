@@ -18,7 +18,7 @@ type Props = {
     memo: string | null;
     completedAt: Date | null;
     createdAt: Date;
-    article: { id: string; title: string; url: string; category: string } | null;
+    article: { id: string; title: string; url: string; category: string; summary: string } | null;
   };
 };
 
@@ -59,6 +59,12 @@ export default function LearningItemCard({ item }: Props) {
                   </span>
                 ))}
               </div>
+            )}
+
+            {item.article?.summary && (
+              <p style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '0.5rem', lineHeight: 1.6 }}>
+                {item.article.summary}
+              </p>
             )}
 
             {item.memo && (
